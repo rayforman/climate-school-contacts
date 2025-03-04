@@ -1,4 +1,4 @@
-// Main JavaScript for Event Guest Manager
+// Main JavaScript for Columbia Climate School Contact Database
 
 // Auto-close alerts after 5 seconds
 document.addEventListener('DOMContentLoaded', function() {

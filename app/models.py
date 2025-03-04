@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # guests = db.relationship('Guest', back_populates='user', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -39,6 +40,8 @@ class Guest(db.Model):
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # user = db.relationship('User', back_populates='guests')
     
     # Relationships
     event_attendances = db.relationship('EventAttendance', back_populates='guest', lazy='dynamic')

@@ -30,7 +30,7 @@ def generate_bio_sheet(event_id):
     
     # Set document properties
     doc.core_properties.title = f"Bio Sheet - {event.name}"
-    doc.core_properties.author = "Event Guest Manager"
+    doc.core_properties.author = "Columbia Climate School Contact Database"
     
     # Add header with event info
     header = doc.add_heading(f"{event.name} - Bio Sheet", level=1)

@@ -9,7 +9,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('index'))
     
     form = LoginForm()
     if form.validate_on_submit():
@@ -21,7 +21,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('main.index')
+            next_page = url_for('index')
         return redirect(next_page)
     
     return render_template('auth/login.html', title='Sign In', form=form)
@@ -36,7 +36,7 @@ def logout():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('index'))
     
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -61,6 +61,6 @@ def change_password():
         current_user.set_password(form.new_password.data)
         db.session.commit()
         flash('Your password has been updated.', 'success')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('index'))
     
     return render_template('auth/change_password.html', title='Change Password', form=form)
