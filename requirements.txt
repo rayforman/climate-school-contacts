@@ -13,3 +13,4 @@ psycopg2-binary==2.9.9
 waitress==2.1.2
 numpy==2.0.2
 pandas==2.2.3
+openpyxl

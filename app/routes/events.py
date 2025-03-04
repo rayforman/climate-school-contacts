@@ -66,9 +66,30 @@ def create():
         )
         
         db.session.add(event)
-        db.session.commit()
+        db.session.commit()  # Commit first to get an event ID
         
-        flash(f"Event '{event.name}' has been created.", 'success')
+        # Handle attendee file upload if provided
+        attendee_file = request.files.get('attendee_csv')  # This might be named differently in your form
+        if attendee_file and attendee_file.filename:
+            # Process the file with our new function
+            result = process_attendee_file(attendee_file, event.id)
+            
+            if result['success']:
+                message = f"Event created and {result['added']} attendees added."
+                if result['existing'] > 0:
+                    message += f" {result['existing']} attendees were already on the list."
+                
+                flash(message, 'success')
+                
+                # Display information about names not found
+                if result['not_found'] > 0:
+                    not_found_message = f"{result['not_found']} names were not found in your database."
+                    flash(not_found_message, 'warning')
+            else:
+                flash(f"Event created but error importing attendees: {result.get('message', 'Unknown error')}", 'warning')
+        else:
+            flash(f"Event '{event.name}' has been created.", 'success')
+        
         return redirect(url_for('events.view', id=event.id))
     
     return render_template('events/create.html', title='Create New Event', form=form)
@@ -184,7 +205,7 @@ def import_attendees(id):
             flash('No selected file', 'danger')
             return redirect(request.url)
         
-        if file and file.filename.endswith('.csv'):
+        if file and (file.filename.endswith('.csv') or file.filename.endswith('.xlsx') or file.filename.endswith('.xls')):
             # Process the attendee file
             result = process_attendee_file(file, event.id)
             
@@ -209,6 +230,6 @@ def import_attendees(id):
             else:
                 flash(f"Error importing attendees: {result.get('message', 'Unknown error')}", 'danger')
         else:
-            flash('Invalid file format. Please upload a CSV file.', 'danger')
+            flash('Invalid file format. Please upload a CSV or Excel file.', 'danger')
     
     return render_template('events/import.html', title=f"Import Attendees - {event.name}", event=event)
