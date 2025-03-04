@@ -14,11 +14,5 @@ def make_shell_context():
         'EventAttendance': EventAttendance
     }
 
-@app.route('/')
-def index():
-    """Render the home page."""
-    from flask import render_template
-    return render_template('index.html', title='Home')
-
 if __name__ == '__main__':
     app.run(debug=True)
