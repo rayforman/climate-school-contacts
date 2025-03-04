@@ -257,11 +257,21 @@ def process_guest_import_file(file, user_id):
             if not first_name or not last_name or first_name.lower() == 'nan' or last_name.lower() == 'nan':
                 result['skipped_names'].append(f"{first_name} {last_name}")
                 continue
-            
-            # Check if guest already exists (case-insensitive)
+
+            # Modify the check for existing guest to include email
             existing_guest = Guest.query.filter(
-                func.lower(Guest.first_name) == func.lower(first_name),
-                func.lower(Guest.last_name) == func.lower(last_name)
+                db.or_(
+                    # Check for matching name
+                    db.and_(
+                        func.lower(Guest.first_name) == func.lower(first_name),
+                        func.lower(Guest.last_name) == func.lower(last_name)
+                    ),
+                    # Check for matching email if email field exists
+                    db.and_(
+                        Guest.email.isnot(None),
+                        func.lower(Guest.email) == func.lower(row.get(mapped_columns.get('email', ''), '').strip())
+                    ) if mapped_columns.get('email') and pd.notna(row.get(mapped_columns.get('email', ''))) else False
+                )
             ).first()
             
             if existing_guest:
