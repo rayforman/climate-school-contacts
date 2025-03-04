@@ -69,7 +69,7 @@ def create():
         db.session.commit()  # Commit first to get an event ID
         
         # Handle attendee file upload if provided
-        attendee_file = request.files.get('attendee_csv')  # This might be named differently in your form
+        attendee_file = request.files.get('attendee_excel')  # This might be named differently in your form
         if attendee_file and attendee_file.filename:
             # Process the file with our new function
             result = process_attendee_file(attendee_file, event.id)
