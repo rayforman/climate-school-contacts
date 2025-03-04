@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} - Columbia Climate School Contact Database
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{{ url_for('events.view', id=event.id) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Event
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    {{ form.guest_id.label }}
+                    {{ form.guest_id(class="form-control select2") }}
+                    {% for error in form.guest_id.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                    <small class="text-muted">Select a guest from your database to add to this event</small>
+                </div>
+                
+                <div class="form-group">
+                    {{ form.notes.label }}
+                    {{ form.notes(class="form-control", rows=3) }}
+                    {% for error in form.notes.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                    <small class="text-muted">Add any notes about this attendee's participation (optional)</small>
+                </div>
+                
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('events.view', id=event.id) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize Select2 for better dropdown experience with many guests
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Select a guest",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+{% endblock %}

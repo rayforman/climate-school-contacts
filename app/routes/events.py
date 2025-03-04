@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
-from flask_login import login_required
+from flask_login import login_required, current_user
 from datetime import datetime
 import os
 
@@ -144,12 +144,25 @@ def add_attendee(id):
     event = Event.query.get_or_404(id)
     form = AttendeeForm()
     
-    # Populate guest choices
-    guests = Guest.query.order_by(Guest.last_name).all()
-    form.guest_id.choices = [(g.id, f"{g.full_name} ({g.organization})") for g in guests]
+    # Get current user's guests to populate the form choices
+    # This is likely the issue - the route isn't filtering guests by user_id
+    guests = Guest.query.filter_by(user_id=current_user.id).order_by(Guest.last_name, Guest.first_name).all()
+    
+    # Make sure we have guests before trying to build choices
+    if not guests:
+        flash("You need to add guests to your database before you can add them to events.", "warning")
+        return redirect(url_for('guests.create'))
+    
+    # Populate guest choices with proper formatting
+    form.guest_id.choices = [(g.id, f"{g.full_name} ({g.organization or 'No organization'})") for g in guests]
     
     if form.validate_on_submit():
         guest = Guest.query.get(form.guest_id.data)
+        
+        # Verify the guest belongs to the current user
+        if guest.user_id != current_user.id:
+            flash("You can only add your own guests to events.", "danger")
+            return redirect(url_for('events.view', id=event.id))
         
         # Check if already attending
         existing = EventAttendance.query.filter_by(
