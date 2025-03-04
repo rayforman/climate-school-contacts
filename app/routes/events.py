@@ -184,14 +184,31 @@ def import_attendees(id):
             flash('No selected file', 'danger')
             return redirect(request.url)
         
-        if file:
-            # Process the Eventbrite file
-            result = process_eventbrite_file(file, event.id)
+        if file and file.filename.endswith('.csv'):
+            # Process the attendee file
+            result = process_attendee_file(file, event.id)
             
             if result['success']:
-                flash(f"Successfully imported {result['added']} attendees. {result['existing']} were already in the system.", 'success')
+                message = f"Successfully added {result['added']} attendees to the event."
+                if result['existing'] > 0:
+                    message += f" {result['existing']} attendees were already on the list."
+                
+                flash(message, 'success')
+                
+                # Display information about names not found
+                if result['not_found'] > 0:
+                    not_found_message = f"{result['not_found']} names were not found in your database: "
+                    # Show up to 5 names, then summarize the rest
+                    if len(result['not_found_names']) <= 5:
+                        not_found_message += ", ".join(result['not_found_names'])
+                    else:
+                        not_found_message += ", ".join(result['not_found_names'][:5]) + f" and {len(result['not_found_names']) - 5} more"
+                    flash(not_found_message, 'warning')
+                
                 return redirect(url_for('events.view', id=event.id))
             else:
-                flash(f"Error importing attendees: {result['message']}", 'danger')
+                flash(f"Error importing attendees: {result.get('message', 'Unknown error')}", 'danger')
+        else:
+            flash('Invalid file format. Please upload a CSV file.', 'danger')
     
     return render_template('events/import.html', title=f"Import Attendees - {event.name}", event=event)

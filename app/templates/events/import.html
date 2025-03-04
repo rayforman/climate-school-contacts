@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} - Columbia Climate School Contact Database
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{{ url_for('events.view', id=event.id) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Event
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Instructions</h5>
+                <p>Upload a CSV file containing attendee names. The system will:</p>
+                <ol>
+                    <li>Look for the <strong>"First Name"</strong> and <strong>"Last Name"</strong> columns in your CSV</li>
+                    <li>Match these names against guests in your database</li>
+                    <li>Add all matched guests to this event's attendee list</li>
+                </ol>
+                <p class="mb-0">Names that don't match any records in your database will be reported but not added.</p>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">CSV Format Example</h5>
+                </div>
+                <div class="card-body">
+                    <p>Your CSV file should have these required columns:</p>
+                    <pre class="bg-light p-3 border rounded">First Name,Last Name
+John,Doe
+Jane,Smith
+Michael,Johnson</pre>
+                    <p class="mb-0 text-muted">Other columns in the CSV will be ignored.</p>
+                </div>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label for="file">Select CSV File</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file" name="file" accept=".csv" required>
+                        <label class="custom-file-label" for="file">Choose file</label>
+                    </div>
+                    <small class="form-text text-muted">Select the CSV file with your attendee list</small>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-import"></i> Import Attendees
+                    </button>
+                    <a href="{{ url_for('events.view', id=event.id) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update file input label with selected filename
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+        var fileName = e.target.files[0].name;
+        var nextSibling = e.target.nextElementSibling;
+        nextSibling.innerText = fileName;
+    });
+</script>
+{% endblock %}
