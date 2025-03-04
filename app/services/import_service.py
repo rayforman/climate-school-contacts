@@ -209,8 +209,8 @@ def process_guest_import_file(file, user_id):
         
         # Mapping of likely column names to model attributes
         column_mapping = {
-            'first_name': ['first name', 'firstname', 'fname'],
-            'last_name': ['last name', 'lastname', 'lname'],
+            'first_name': ['first name', 'firstname', 'fname', 'first'],
+            'last_name': ['last name', 'lastname', 'lname', 'last'],
             'email': ['email', 'e-mail', 'email address'],
             'prefix': ['prefix', 'title'],
             'middle_name': ['middle name', 'middlename'],
@@ -221,9 +221,9 @@ def process_guest_import_file(file, user_id):
             'title': ['job title', 'position', 'role'],
             'athena_id': ['athena id', 'columbia id', 'university id'],
             'prospect_manager': ['prospect manager', 'development officer'],
-            'donor_capacity': ['donor capacity', 'giving level', 'capacity'],
+            'donor_capacity': ['donor capacity', 'giving level', 'capacity', 'rating'],
             'bio': ['bio', 'biography', 'description'],
-            'notes': ['notes', 'additional info', 'comments']
+            'notes': ['notes', 'additional info', 'comments', 'note']
         }
         
         # Find the actual column names in the dataframe
@@ -298,6 +298,13 @@ def process_guest_import_file(file, user_id):
                     value = row.get(mapped_col)
                     if pd.notna(value):
                         guest_data[field] = str(value).strip()
+            
+            # Set default value for donor_capacity if not provided
+            if 'donor_capacity' not in guest_data or not guest_data['donor_capacity']:
+                guest_data['donor_capacity'] = 'TBD'
+                
+            # Create new guest
+            guest = Guest(**guest_data)
             
             # Create new guest
             guest = Guest(**guest_data)
