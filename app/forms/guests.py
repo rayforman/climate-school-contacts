@@ -35,13 +35,11 @@ class GuestForm(FlaskForm):
         Optional(),
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])
-    donor_capacity = SelectField('Donor Capacity', choices=[
-        ('', 'Unknown'),
-        ('low', 'Low (<$1,000)'),
-        ('medium', 'Medium ($1,000-$10,000)'),
-        ('high', 'High ($10,000-$100,000)'),
-        ('very_high', 'Very High (>$100,000)')
-    ], validators=[Optional()])
+    
+    # Changed from SelectField to StringField for more flexibility
+    donor_capacity = StringField('Donor Capacity', validators=[Optional(), Length(max=64)],
+                               description="e.g., Low, Medium, High, Very High, TBD")
+    
     notes = TextAreaField('Notes', validators=[Optional()])
     submit = SubmitField('Save Guest')
     

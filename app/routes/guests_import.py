@@ -24,21 +24,27 @@ def import_guests():
             result = process_guest_import_file(file, current_user.id)
             
             if result['success']:
-                message = f"Successfully added {result['added']} new guests to your database."
-                if result['existing'] > 0:
-                    message += f" {result['existing']} guests were already in the database and skipped."
+                message = f"Import summary: {result['added']} new guests added"
+                
+                # Include info about updated guests
+                if result['updated'] > 0:
+                    message += f", {result['updated']} existing guests updated with new information"
+                
+                # Include info about skipped guests
+                if result['skipped'] > 0:
+                    message += f", {result['skipped']} guests skipped (no new information)"
                 
                 flash(message, 'success')
                 
                 # Display information about rows not imported
-                if result['total_rows'] > (result['added'] + result['existing']):
-                    skipped_message = f"{result['total_rows'] - (result['added'] + result['existing'])} rows could not be imported."
+                if len(result.get('skipped_names', [])) > 0:
+                    skipped_message = f"{len(result['skipped_names'])} rows could not be processed due to missing names."
                     if result.get('skipped_names'):
-                        # Show up to 5 skipped names
+                        # Show up to 5 skipped entries
                         if len(result['skipped_names']) <= 5:
-                            skipped_message += " Skipped names: " + ", ".join(result['skipped_names'])
+                            skipped_message += " Skipped entries: " + ", ".join(result['skipped_names'])
                         else:
-                            skipped_message += " Skipped names: " + ", ".join(result['skipped_names'][:5]) + f" and {len(result['skipped_names']) - 5} more"
+                            skipped_message += " Skipped entries: " + ", ".join(result['skipped_names'][:5]) + f" and {len(result['skipped_names']) - 5} more"
                     
                     flash(skipped_message, 'warning')
                 
@@ -46,6 +52,6 @@ def import_guests():
             else:
                 flash(f"Error importing guests: {result.get('message', 'Unknown error')}", 'danger')
         else:
-            flash('Invalid file format. Please upload a CSV or Excel file.', 'danger')
+            flash('Invalid file format. Please upload an Excel file.', 'danger')
     
     return render_template('guests/import.html', title="Import Guests")
