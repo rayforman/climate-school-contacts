@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
-from flask_login import login_required
+from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -16,7 +16,8 @@ def index():
     form = GuestSearchForm(request.args)
     page = request.args.get('page', 1, type=int)
     
-    query = Guest.query
+    # Filter guests by the current user
+    query = Guest.query.filter_by(user_id=current_user.id)
     
     # Apply search filters if provided
     if form.search.data:
@@ -66,7 +67,8 @@ def create():
             title=form.title.data,
             bio=form.bio.data,
             donor_capacity=form.donor_capacity.data,
-            notes=form.notes.data
+            notes=form.notes.data,
+            user_id=current_user.id  # Associate guest with current user
         )
         
         # Handle photo upload
@@ -86,13 +88,13 @@ def create():
 @guests_bp.route('/<int:id>', methods=['GET'])
 @login_required
 def view(id):
-    guest = Guest.query.get_or_404(id)
+    guest = Guest.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     return render_template('guests/view.html', title=guest.full_name, guest=guest)
 
 @guests_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit(id):
-    guest = Guest.query.get_or_404(id)
+    guest = Guest.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     form = GuestForm(obj=guest)
     
     if form.validate_on_submit():
@@ -125,7 +127,8 @@ def edit(id):
 @guests_bp.route('/<int:id>/delete', methods=['POST'])
 @login_required
 def delete(id):
-    guest = Guest.query.get_or_404(id)
+    # Filter guests by the current user
+    guest = Guest.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     name = guest.full_name
     
     # Delete photo if exists
