@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} - Event Guest Manager
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{{ url_for('guests.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Guest List
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if guest.photo_filename %}
+                    <img src="{{ guest.photo_url }}" alt="{{ guest.full_name }}" class="img-fluid rounded guest-photo mb-3">
+                    {% else %}
+                    <div class="bg-light rounded p-4 mb-3">
+                        <i class="fas fa-user fa-6x text-secondary"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <h4 class="card-title">{{ guest.full_name }}</h4>
+                    
+                    {% if guest.title %}
+                    <p class="text-muted mb-1">{{ guest.title }}</p>
+                    {% endif %}
+                    
+                    {% if guest.organization %}
+                    <p class="mb-3">{{ guest.organization }}</p>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-center">
+                        <a href="{{ url_for('guests.edit', id=guest.id) }}" class="btn btn-primary mx-1">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-danger mx-1" data-toggle="modal" data-target="#deleteModal">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            {% if guest.event_attendances.count() > 0 %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Event History</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for attendance in guest.event_attendances %}
+                        <a href="{{ url_for('events.view', id=attendance.event.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ attendance.event.name }}</h6>
+                                <small>{{ attendance.event.date.strftime('%b %d, %Y') }}</small>
+                            </div>
+                            {% if attendance.notes %}
+                            <small class="text-muted">{{ attendance.notes }}</small>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Guest Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        {% if guest.email %}
+                        <dt class="col-sm-3">Email</dt>
+                        <dd class="col-sm-9">
+                            <a href="mailto:{{ guest.email }}">{{ guest.email }}</a>
+                        </dd>
+                        {% endif %}
+                        
+                        {% if guest.phone %}
+                        <dt class="col-sm-3">Phone</dt>
+                        <dd class="col-sm-9">{{ guest.phone }}</dd>
+                        {% endif %}
+                        
+                        {% if guest.organization %}
+                        <dt class="col-sm-3">Organization</dt>
+                        <dd class="col-sm-9">{{ guest.organization }}</dd>
+                        {% endif %}
+                        
+                        {% if guest.title %}
+                        <dt class="col-sm-3">Title</dt>
+                        <dd class="col-sm-9">{{ guest.title }}</dd>
+                        {% endif %}
+                        
+                        {% if guest.donor_capacity %}
+                        <dt class="col-sm-3">Donor Capacity</dt>
+                        <dd class="col-sm-9">
+                            {% if guest.donor_capacity == 'low' %}
+                            <span class="badge badge-info">Low (&lt;$1,000)</span>
+                            {% elif guest.donor_capacity == 'medium' %}
+                            <span class="badge badge-primary">Medium ($1,000-$10,000)</span>
+                            {% elif guest.donor_capacity == 'high' %}
+                            <span class="badge badge-success">High ($10,000-$100,000)</span>
+                            {% elif guest.donor_capacity == 'very_high' %}
+                            <span class="badge badge-warning">Very High (&gt;$100,000)</span>
+                            {% endif %}
+                        </dd>
+                        {% endif %}
+                        
+                        <dt class="col-sm-3">Added on</dt>
+                        <dd class="col-sm-9">{{ guest.created_at.strftime('%B %d, %Y') }}</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            {% if guest.bio %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Bio</h5>
+                </div>
+                <div class="card-body">
+                    <div class="guest-bio">{{ guest.bio }}</div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if guest.notes %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Notes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="guest-bio">{{ guest.notes }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <strong>{{ guest.full_name }}</strong>? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <form action="{{ url_for('guests.delete', id=guest.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} - Event Guest Manager
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .custom-file-label::after {
+        content: "Browse";
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{{ url_for('guests.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Guest List
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.first_name.label }}
+                            {{ form.first_name(class="form-control") }}
+                            {% for error in form.first_name.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.last_name.label }}
+                            {{ form.last_name(class="form-control") }}
+                            {% for error in form.last_name.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.email.label }}
+                            {{ form.email(class="form-control") }}
+                            {% for error in form.email.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.phone.label }}
+                            {{ form.phone(class="form-control") }}
+                            {% for error in form.phone.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.organization.label }}
+                            {{ form.organization(class="form-control") }}
+                            {% for error in form.organization.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.title.label }}
+                            {{ form.title(class="form-control") }}
+                            {% for error in form.title.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    {{ form.donor_capacity.label }}
+                    {{ form.donor_capacity(class="form-control") }}
+                    {% for error in form.donor_capacity.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.bio.label }}
+                    {{ form.bio(class="form-control", rows=5) }}
+                    {% for error in form.bio.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                    <small class="form-text text-muted">Enter the guest's biographical information. This will appear in bio sheets.</small>
+                </div>
+                
+                <div class="form-group">
+                    {{ form.notes.label }}
+                    {{ form.notes(class="form-control", rows=3) }}
+                    {% for error in form.notes.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                    <small class="form-text text-muted">Internal notes about this guest. These will not appear in bio sheets.</small>
+                </div>
+                
+                <div class="form-group">
+                    {{ form.photo.label }}
+                    <div class="custom-file">
+                        {{ form.photo(class="custom-file-input", id="customFile") }}
+                        <label class="custom-file-label" for="customFile">Choose file</label>
+                    </div>
+                    {% for error in form.photo.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                    <small class="form-text text-muted">Upload a photo of the guest. Supported formats: JPG, PNG.</small>
+                    
+                    {% if guest and guest.photo_filename %}
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ guest.photo_url }}" alt="{{ guest.full_name }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                            <div class="ml-3">
+                                <p class="mb-1">Current photo</p>
+                                <small class="text-muted">Upload a new photo to replace this one.</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('guests.index') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update file input label with selected filename
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+        var fileName = e.target.files[0].name;
+        var nextSibling = e.target.nextElementSibling;
+        nextSibling.innerText = fileName;
+    });
+</script>
+{% endblock %}

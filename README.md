@@ -1,4 +1,5 @@
 ## Project Architecture
+```
 event-guest-manager/
 ├── app/
 │   ├── __init__.py         # Flask application factory
@@ -33,3 +34,4 @@ event-guest-manager/
 ├── README.md
 ├── requirements.txt
 └── run.py                  # Application entry point
+```

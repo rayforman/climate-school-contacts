@@ -1,0 +1,100 @@
+/* Custom Styles for Event Guest Manager */
+
+/* General */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.25rem;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Guest profile */
+.guest-profile-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.guest-photo {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+/* Bio formatting */
+.guest-bio {
+    white-space: pre-line;
+}
+
+/* Tables */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.075);
+}
+
+/* Pagination */
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Event cards */
+.event-date-badge {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.event-date-badge .month {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.event-date-badge .day {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.event-date-badge .year {
+    font-size: 1rem;
+}
+
+/* Search form */
+.search-form {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}

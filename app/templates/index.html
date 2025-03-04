@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} - Event Guest Manager
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="jumbotron">
+        <h1 class="display-4">Event Guest Manager</h1>
+        <p class="lead">Welcome to the Event Guest Management System</p>
+        <hr class="my-4">
+        <p>Manage your guests, events, and generate bio sheets with ease.</p>
+        
+        {% if current_user.is_authenticated %}
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Guests</h5>
+                        <p class="card-text">Manage your guest database with photos and bios.</p>
+                        <a href="{{ url_for('guests.index') }}" class="btn btn-primary">View Guests</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Events</h5>
+                        <p class="card-text">Create and manage events, import attendees from Eventbrite.</p>
+                        <a href="{{ url_for('events.index') }}" class="btn btn-primary">View Events</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Reports</h5>
+                        <p class="card-text">Generate bio sheets and other reports for your events.</p>
+                        <a href="{{ url_for('reports.index') }}" class="btn btn-primary">Generate Reports</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Log In</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-lg ml-2">Register</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
