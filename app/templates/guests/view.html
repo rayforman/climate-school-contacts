@@ -26,6 +26,10 @@
                     
                     <h4 class="card-title">{{ guest.full_name }}</h4>
                     
+                    {% if guest.nickname %}
+                    <p class="text-muted mb-1">Also known as: {{ guest.nickname }}</p>
+                    {% endif %}
+                    
                     {% if guest.title %}
                     <p class="text-muted mb-1">{{ guest.title }}</p>
                     {% endif %}
@@ -72,10 +76,26 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Guest Details</h5>
+                    <h5 class="mb-0">Personal Information</h5>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
+                        {% if guest.prefix or guest.middle_name %}
+                        <dt class="col-sm-3">Full Name</dt>
+                        <dd class="col-sm-9">
+                            {% if guest.prefix %}{{ guest.prefix }} {% endif %}
+                            {{ guest.first_name }}
+                            {% if guest.middle_name %} {{ guest.middle_name }} {% endif %}
+                            {{ guest.last_name }}
+                            {% if guest.descriptor %} ({{ guest.descriptor }}){% endif %}
+                        </dd>
+                        {% endif %}
+                        
+                        {% if guest.nickname %}
+                        <dt class="col-sm-3">Nickname(s)</dt>
+                        <dd class="col-sm-9">{{ guest.nickname }}</dd>
+                        {% endif %}
+                        
                         {% if guest.email %}
                         <dt class="col-sm-3">Email</dt>
                         <dd class="col-sm-9">
@@ -96,6 +116,25 @@
                         {% if guest.title %}
                         <dt class="col-sm-3">Title</dt>
                         <dd class="col-sm-9">{{ guest.title }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Columbia Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        {% if guest.athena_id %}
+                        <dt class="col-sm-3">Athena ID</dt>
+                        <dd class="col-sm-9">{{ guest.athena_id }}</dd>
+                        {% endif %}
+                        
+                        {% if guest.prospect_manager %}
+                        <dt class="col-sm-3">Prospect Manager</dt>
+                        <dd class="col-sm-9">{{ guest.prospect_manager }}</dd>
                         {% endif %}
                         
                         {% if guest.donor_capacity %}

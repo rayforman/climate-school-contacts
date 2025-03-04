@@ -26,7 +26,10 @@ def index():
             (Guest.first_name.ilike(search_term)) |
             (Guest.last_name.ilike(search_term)) |
             (Guest.email.ilike(search_term)) |
-            (Guest.organization.ilike(search_term))
+            (Guest.organization.ilike(search_term)) |
+            (Guest.athena_id.ilike(search_term)) |
+            (Guest.nickname.ilike(search_term)) |
+            (Guest.prospect_manager.ilike(search_term))
         )
     
     # Apply sorting
@@ -59,12 +62,27 @@ def create():
     
     if form.validate_on_submit():
         guest = Guest(
+            # Basic information
+            prefix=form.prefix.data,
             first_name=form.first_name.data,
+            middle_name=form.middle_name.data,
             last_name=form.last_name.data,
+            nickname=form.nickname.data,
+            descriptor=form.descriptor.data,
+            
+            # Contact information
             email=form.email.data,
             phone=form.phone.data,
+            
+            # Professional information
             organization=form.organization.data,
             title=form.title.data,
+            
+            # Columbia-specific fields
+            athena_id=form.athena_id.data,
+            prospect_manager=form.prospect_manager.data,
+            
+            # Other details
             bio=form.bio.data,
             donor_capacity=form.donor_capacity.data,
             notes=form.notes.data,
@@ -99,12 +117,26 @@ def edit(id):
     
     if form.validate_on_submit():
         # Update basic information
+        guest.prefix = form.prefix.data
         guest.first_name = form.first_name.data
+        guest.middle_name = form.middle_name.data
         guest.last_name = form.last_name.data
+        guest.nickname = form.nickname.data
+        guest.descriptor = form.descriptor.data
+        
+        # Update contact information
         guest.email = form.email.data
         guest.phone = form.phone.data
+        
+        # Update professional information
         guest.organization = form.organization.data
         guest.title = form.title.data
+        
+        # Update Columbia-specific fields
+        guest.athena_id = form.athena_id.data
+        guest.prospect_manager = form.prospect_manager.data
+        
+        # Update other details
         guest.bio = form.bio.data
         guest.donor_capacity = form.donor_capacity.data
         guest.notes = form.notes.data

@@ -1,8 +1,8 @@
-"""initial migration
+"""initial setup with enhanced guest model
 
-Revision ID: a6ef79346f4b
+Revision ID: 706c5cb683f5
 Revises: 
-Create Date: 2025-03-03 22:14:40.870643
+Create Date: 2025-03-03 23:17:56.767155
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a6ef79346f4b'
+revision = '706c5cb683f5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -56,11 +56,18 @@ def upgrade():
     sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('athena_id', sa.String(length=64), nullable=True),
+    sa.Column('prospect_manager', sa.String(length=128), nullable=True),
+    sa.Column('nickname', sa.String(length=64), nullable=True),
+    sa.Column('prefix', sa.String(length=20), nullable=True),
+    sa.Column('middle_name', sa.String(length=64), nullable=True),
+    sa.Column('descriptor', sa.String(length=256), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('guest', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_guest_athena_id'), ['athena_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_guest_email'), ['email'], unique=True)
 
     op.create_table('event_attendance',
@@ -83,6 +90,7 @@ def downgrade():
     op.drop_table('event_attendance')
     with op.batch_alter_table('guest', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_guest_email'))
+        batch_op.drop_index(batch_op.f('ix_guest_athena_id'))
 
     op.drop_table('guest')
     with op.batch_alter_table('user', schema=None) as batch_op:

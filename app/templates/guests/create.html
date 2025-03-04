@@ -9,6 +9,11 @@
     .custom-file-label::after {
         content: "Browse";
     }
+    .field-help {
+        color: #6c757d;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
 </style>
 {% endblock %}
 
@@ -28,8 +33,20 @@
             <form method="POST" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 
+                <h4 class="mb-3">Basic Information</h4>
+                
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            {{ form.prefix.label }}
+                            {{ form.prefix(class="form-control") }}
+                            {% for error in form.prefix.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                            <small class="field-help">e.g., Dr., Mr., Ms.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="form-group">
                             {{ form.first_name.label }}
                             {{ form.first_name(class="form-control") }}
@@ -38,7 +55,16 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            {{ form.middle_name.label }}
+                            {{ form.middle_name(class="form-control") }}
+                            {% for error in form.middle_name.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="form-group">
                             {{ form.last_name.label }}
                             {{ form.last_name(class="form-control") }}
@@ -48,6 +74,32 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.nickname.label }}
+                            {{ form.nickname(class="form-control") }}
+                            {% for error in form.nickname.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                            <small class="field-help">Comma-separated list if multiple</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.descriptor.label }}
+                            {{ form.descriptor(class="form-control") }}
+                            {% for error in form.descriptor.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                            <small class="field-help">Suffixes or additional information (e.g., Jr., III, PhD)</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                <h4 class="mb-3">Contact Information</h4>
                 
                 <div class="row">
                     <div class="col-md-6">
@@ -70,6 +122,9 @@
                     </div>
                 </div>
                 
+                <hr class="my-4">
+                <h4 class="mb-3">Professional Information</h4>
+                
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -91,6 +146,32 @@
                     </div>
                 </div>
                 
+                <hr class="my-4">
+                <h4 class="mb-3">Columbia-Specific Information</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.athena_id.label }}
+                            {{ form.athena_id(class="form-control") }}
+                            {% for error in form.athena_id.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                            <small class="field-help">Columbia University internal ID</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.prospect_manager.label }}
+                            {{ form.prospect_manager(class="form-control") }}
+                            {% for error in form.prospect_manager.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                            <small class="field-help">Development officer name</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     {{ form.donor_capacity.label }}
                     {{ form.donor_capacity(class="form-control") }}
@@ -99,13 +180,16 @@
                     {% endfor %}
                 </div>
                 
+                <hr class="my-4">
+                <h4 class="mb-3">Biographical Information</h4>
+                
                 <div class="form-group">
                     {{ form.bio.label }}
                     {{ form.bio(class="form-control", rows=5) }}
                     {% for error in form.bio.errors %}
                         <small class="text-danger">{{ error }}</small>
                     {% endfor %}
-                    <small class="form-text text-muted">Enter the guest's biographical information. This will appear in bio sheets.</small>
+                    <small class="field-help">Enter the guest's biographical information. This will appear in bio sheets.</small>
                 </div>
                 
                 <div class="form-group">
@@ -114,7 +198,7 @@
                     {% for error in form.notes.errors %}
                         <small class="text-danger">{{ error }}</small>
                     {% endfor %}
-                    <small class="form-text text-muted">Internal notes about this guest. These will not appear in bio sheets.</small>
+                    <small class="field-help">Internal notes about this guest. These will not appear in bio sheets.</small>
                 </div>
                 
                 <div class="form-group">
@@ -126,7 +210,7 @@
                     {% for error in form.photo.errors %}
                         <small class="text-danger">{{ error }}</small>
                     {% endfor %}
-                    <small class="form-text text-muted">Upload a photo of the guest. Supported formats: JPG, PNG.</small>
+                    <small class="field-help">Upload a photo of the guest. Supported formats: JPG, PNG.</small>
                     
                     {% if guest and guest.photo_filename %}
                     <div class="mt-2">

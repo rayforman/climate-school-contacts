@@ -11,6 +11,8 @@ import tempfile
 
 from app.models import Event, Guest, EventAttendance
 
+# Update to app/services/reports.py - generate_bio_sheet function
+
 def generate_bio_sheet(event_id):
     """
     Generate a bio sheet for an event.
@@ -96,12 +98,30 @@ def generate_bio_sheet(event_id):
                 except Exception as e:
                     current_app.logger.error(f"Error adding photo: {str(e)}")
         
-        # Add guest information
+        # Add guest information - Full formal name with prefix, middle name, etc.
+        name_components = []
+        if guest.prefix:
+            name_components.append(guest.prefix)
+        name_components.append(guest.first_name)
+        if guest.middle_name:
+            name_components.append(guest.middle_name)
+        name_components.append(guest.last_name)
+        if guest.descriptor:
+            name_components.append(f"({guest.descriptor})")
+        
         name_paragraph = bio_cell.paragraphs[0]
-        name_run = name_paragraph.add_run(f"{guest.full_name}")
+        name_run = name_paragraph.add_run(" ".join(name_components))
         name_run.bold = True
         name_run.font.size = Pt(14)
         
+        # Add nickname if available
+        if guest.nickname:
+            nickname_paragraph = bio_cell.add_paragraph()
+            nickname_run = nickname_paragraph.add_run(f'"{guest.nickname}"')
+            nickname_run.italic = True
+            nickname_run.font.size = Pt(12)
+        
+        # Add title and organization
         if guest.title or guest.organization:
             title_org = []
             if guest.title:
@@ -113,6 +133,12 @@ def generate_bio_sheet(event_id):
             title_run = title_paragraph.add_run(", ".join(title_org))
             title_run.italic = True
             title_run.font.size = Pt(12)
+        
+        # Add prospect manager if available
+        if guest.prospect_manager:
+            manager_paragraph = bio_cell.add_paragraph()
+            manager_paragraph.add_run("Prospect Manager: ").bold = True
+            manager_paragraph.add_run(guest.prospect_manager)
         
         # Add the bio
         if guest.bio:

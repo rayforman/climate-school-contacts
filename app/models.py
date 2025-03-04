@@ -25,9 +25,11 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+# Update to app/models.py - Guest class
 class Guest(db.Model):
     """Guest model to store contact information and bio details."""
     id = db.Column(db.Integer, primary_key=True)
+    # Original fields
     first_name = db.Column(db.String(64), nullable=False)
     last_name = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(120), unique=True, index=True)
@@ -36,19 +38,49 @@ class Guest(db.Model):
     title = db.Column(db.String(128))
     bio = db.Column(db.Text)
     photo_filename = db.Column(db.String(128))
-    donor_capacity = db.Column(db.String(64))  # Could be an enum or relationship
+    donor_capacity = db.Column(db.String(64))
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', back_populates='guests')
     
+    
+    # New fields
+    athena_id = db.Column(db.String(64), index=True)
+    prospect_manager = db.Column(db.String(128))
+    nickname = db.Column(db.String(64))
+    prefix = db.Column(db.String(20))
+    middle_name = db.Column(db.String(64))
+    descriptor = db.Column(db.String(256))
+    
     # Relationships
     event_attendances = db.relationship('EventAttendance', back_populates='guest', lazy='dynamic')
     
     @property
     def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+        """Return the full formatted name of the guest."""
+        components = []
+        if self.prefix:
+            components.append(self.prefix)
+        components.append(self.first_name)
+        if self.middle_name:
+            components.append(self.middle_name)
+        components.append(self.last_name)
+        
+        full = " ".join(components)
+        if self.descriptor:
+            full += f" ({self.descriptor})"
+        return full
+    
+    @property
+    def display_name(self):
+        """Return a display name that includes nickname if available."""
+        name = self.first_name
+        if self.nickname:
+            name += f' "{self.nickname}"'
+        name += f" {self.last_name}"
+        return name
     
     @property
     def photo_url(self):
