@@ -1,8 +1,9 @@
-# # Import blueprints
+# Import blueprints
 # from app.routes.auth import auth_bp
 # from app.routes.guests import guests_bp
 # from app.routes.events import events_bp
 # from app.routes.reports import reports_bp
+# from app.routes.guests_import import guests_import_bp
 
 # # Register main routes
 # def register_routes(app):
@@ -10,3 +11,4 @@
 #     app.register_blueprint(guests_bp)
 #     app.register_blueprint(events_bp)
 #     app.register_blueprint(reports_bp)
+#     app.register_blueprint(guests_import_bp)

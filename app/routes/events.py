@@ -5,7 +5,7 @@ import os
 
 from app.models import db, Event, Guest, EventAttendance
 from app.forms.events import EventForm, EventSearchForm, AttendeeForm
-from app.services.eventbrite import process_attendee_file
+from app.services.import_service import process_attendee_file
 
 events_bp = Blueprint('events', __name__, url_prefix='/events')
 

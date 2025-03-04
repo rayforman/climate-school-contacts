@@ -48,11 +48,13 @@ def create_app(config_class='app.config.Config'):
     from app.routes.guests import guests_bp
     from app.routes.events import events_bp
     from app.routes.reports import reports_bp
+    from app.routes.guests_import import guests_import_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(guests_bp)
     app.register_blueprint(events_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(guests_import_bp)
     
     # Register error handlers
     @app.errorhandler(404)

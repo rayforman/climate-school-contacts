@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} - Columbia Climate School Contact Database
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{{ url_for('guests.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Guest List
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Instructions</h5>
+                <p>Upload an Excel file to batch import guests into your database. The system will:</p>
+                <ol>
+                    <li>Look for columns matching guest attributes</li>
+                    <li>Skip guests already in your database</li>
+                    <li>Add new guests to your contact list</li>
+                </ol>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Recommended Excel Format</h5>
+                </div>
+                <div class="card-body">
+                    <p>Your Excel file should have columns similar to these:</p>
+                    <pre class="bg-light p-3 border rounded">First Name,Last Name,Email,Prefix,Nickname,Organization,Title,Athena ID,Prospect Manager,Donor Capacity,Notes
+John,Doe,john.doe@example.com,Mr.,Johnny,Climate Solutions,Researcher,CU12345,Jane Smith,medium,Met at conference
+Jane,Smith,jane.smith@example.com,Dr.,Janie,Green Energy,Director,CU54321,Bob Johnson,high,Potential major donor</pre>
+                    <p class="mb-0 text-muted">Column names don't have to be exact. The system will try to match similar names.</p>
+                </div>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label for="file">Select Excel File</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file" name="file" accept=".xlsx,.xls,.csv" required>
+                        <label class="custom-file-label" for="file">Choose file</label>
+                    </div>
+                    <small class="form-text text-muted">Select the Excel file with your guest list</small>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-import"></i> Import Guests
+                    </button>
+                    <a href="{{ url_for('guests.index') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+            
+        <div class="card-footer">
+            <h5>Column Matching</h5>
+            <p class="text-muted mb-1">The system can recognize these column names:</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <small>
+                        <strong>First Name:</strong> first name, firstname, fname<br>
+                        <strong>Last Name:</strong> last name, lastname, lname<br>
+                        <strong>Email:</strong> email, e-mail, email address<br>
+                        <strong>Prefix:</strong> prefix, title<br>
+                        <strong>Middle Name:</strong> middle name, middlename
+                    </small>
+                </div>
+                <div class="col-md-4">
+                    <small>
+                        <strong>Nickname:</strong> nickname, nicknames<br>
+                        <strong>Descriptor:</strong> descriptor, suffix<br>
+                        <strong>Phone:</strong> phone, phone number, mobile<br>
+                        <strong>Organization:</strong> organization, company, org
+                    </small>
+                </div>
+                <div class="col-md-4">
+                    <small>
+                        <strong>Job Title:</strong> job title, position, role<br>
+                        <strong>Athena ID:</strong> athena id, columbia id<br>
+                        <strong>Prospect Manager:</strong> prospect manager, development officer<br>
+                        <strong>Donor Capacity:</strong> donor capacity, giving level
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update file input label with selected filename
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+        var fileName = e.target.files[0].name;
+        var nextSibling = e.target.nextElementSibling;
+        nextSibling.innerText = fileName;
+    });
+</script>
+{% endblock %}
