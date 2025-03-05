@@ -69,8 +69,7 @@ class Guest(db.Model):
         components.append(self.last_name)
         
         full = " ".join(components)
-        if self.descriptor:
-            full += f" ({self.descriptor})"
+
         return full
     
     @property
