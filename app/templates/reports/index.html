@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} - Columbia Climate School Contact Database
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Reports</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Bio Sheets</h4>
+        </div>
+        <div class="card-body">
+            <p>Generate a bio sheet for any of your events. Each bio sheet includes:</p>
+            <ul>
+                <li>Event details at the top</li>
+                <li>Photos of attendees (if available)</li>
+                <li>Names, Athena IDs, and donor information</li>
+                <li>Biographical information for each attendee</li>
+            </ul>
+            <p>Bio sheets are generated in Microsoft Word format (.docx) and can be edited after download.</p>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Date</th>
+                            <th>Attendees</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td class="align-middle">{{ event.name }}</td>
+                            <td class="align-middle">{{ event.date.strftime('%B %d, %Y') }}</td>
+                            <td class="align-middle">{{ event.attendee_count }}</td>
+                            <td class="align-middle">
+                                <a href="{{ url_for('reports.bio_sheet', event_id=event.id) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-file-word"></i> Generate Bio Sheet
+                                </a>
+                                <a href="{{ url_for('events.view', id=event.id) }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> View Event
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <p>No events found. Create an event first to generate a bio sheet.</p>
+                                <a href="{{ url_for('events.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-calendar-plus"></i> Create Event
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

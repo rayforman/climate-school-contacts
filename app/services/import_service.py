@@ -83,7 +83,7 @@ def process_guest_import_file(file, user_id):
             'phone': ['phone', 'phone number', 'mobile', 'contact number'],
             'organization': ['organization', 'company', 'org'],
             'title': ['job title', 'position', 'role'],
-            'athena_id': ['athena id', 'columbia id', 'university id'],
+            'athena_id': ['athena id', 'advance id', 'columbia id', 'university id'],
             'prospect_manager': ['prospect manager', 'development officer'],
             'donor_capacity': ['donor capacity', 'giving level', 'capacity', 'rating', 'donor', 'level'],
             'bio': ['bio', 'biography', 'description'],

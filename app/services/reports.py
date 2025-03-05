@@ -11,11 +11,9 @@ import tempfile
 
 from app.models import Event, Guest, EventAttendance
 
-# Update to app/services/reports.py - generate_bio_sheet function
-
 def generate_bio_sheet(event_id):
     """
-    Generate a bio sheet for an event.
+    Generate a bio sheet for an event with the specified format.
     
     Args:
         event_id: ID of the event
@@ -23,7 +21,7 @@ def generate_bio_sheet(event_id):
     Returns:
         str: Path to the generated document
     """
-    # Get the event and attendees
+    # Get the event and attendees (sorted by last name)
     event = Event.query.get_or_404(event_id)
     attendances = event.attendances.join(Guest).order_by(Guest.last_name, Guest.first_name).all()
     
@@ -34,58 +32,59 @@ def generate_bio_sheet(event_id):
     doc.core_properties.title = f"Bio Sheet - {event.name}"
     doc.core_properties.author = "Columbia Climate School Contact Database"
     
+    # Set default font to Georgia
+    style = doc.styles['Normal']
+    style.font.name = 'Georgia'
+    style.font.size = Pt(11)
+    
     # Add header with event info
-    header = doc.add_heading(f"{event.name} - Bio Sheet", level=1)
-    header.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    header = doc.add_paragraph()
+    title_run = header.add_run(event.name)
+    title_run.bold = True
+    title_run.font.size = Pt(14)
     
-    # Add event details
-    event_details = doc.add_paragraph()
-    event_details.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    event_details.add_run(f"Date: {event.date.strftime('%B %d, %Y at %I:%M %p')}\n").bold = True
+    # Format date and time
+    event_date = event.date.strftime('%A, %B %d, %Y')
+    event_time = event.date.strftime('%I:%M %p')
+    if event.date.hour == 18 and event.date.minute == 0:  # Check if it's a standard 6-8pm event
+        event_time = "6:00 - 8:00 PM"
+    
+    # Add date, time and location
+    header.add_run(f"\n{event_date}\n{event_time}")
     if event.location:
-        event_details.add_run(f"Location: {event.location}\n").bold = True
-    event_details.add_run(f"Number of Attendees: {len(attendances)}").bold = True
+        header.add_run(f"\n{event.location}")
     
-    # Add some space
+    # Add spacer
     doc.add_paragraph()
     
     # Add each attendee
-    for i, attendance in enumerate(attendances):
+    for attendance in attendances:
         guest = attendance.guest
         
-        # Add separator except for the first entry
-        if i > 0:
-            separator = doc.add_paragraph()
-            separator.paragraph_format.space_before = Pt(10)
-            separator.paragraph_format.space_after = Pt(10)
-            separator_run = separator.add_run('* * * * *')
-            separator_run.bold = True
-            separator.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        
-        # Create a table for the guest info
+        # Create table for layout - 2 columns, one for photo and one for text
         table = doc.add_table(rows=1, cols=2)
         table.autofit = False
         table.allow_autofit = False
         
         # Set column widths
-        table.columns[0].width = Inches(1.5)  # Photo column
-        table.columns[1].width = Inches(5.0)  # Bio column
+        table.columns[0].width = Inches(1.2)  # Photo column
+        table.columns[1].width = Inches(5.3)  # Text column
         
-        # Get the cells
+        # Get cells
         photo_cell = table.cell(0, 0)
-        bio_cell = table.cell(0, 1)
+        text_cell = table.cell(0, 1)
         
         # Add photo if available
         if guest.photo_filename:
             photo_path = os.path.join(current_app.config['UPLOAD_PATH'], guest.photo_filename)
             if os.path.exists(photo_path):
                 try:
-                    # Resize image for the document (about 1.5 inches wide)
+                    # Resize image for the document 
                     img = Image.open(photo_path)
                     
-                    # Calculate height based on aspect ratio to maintain ~1.5 inch width
+                    # Calculate height based on aspect ratio 
                     aspect_ratio = img.height / img.width
-                    target_width = 1.5  # in inches
+                    target_width = 1.1  # inches
                     target_height = target_width * aspect_ratio
                     
                     # Save to a temporary file
@@ -98,64 +97,40 @@ def generate_bio_sheet(event_id):
                 except Exception as e:
                     current_app.logger.error(f"Error adding photo: {str(e)}")
         
-        # Add guest information - Full formal name with prefix, middle name, etc.
-        name_components = []
-        if guest.prefix:
-            name_components.append(guest.prefix)
-        name_components.append(guest.first_name)
-        if guest.middle_name:
-            name_components.append(guest.middle_name)
-        name_components.append(guest.last_name)
-        if guest.descriptor:
-            name_components.append(f"({guest.descriptor})")
+        # Add guest information to text cell
         
-        name_paragraph = bio_cell.paragraphs[0]
-        name_run = name_paragraph.add_run(" ".join(name_components))
+        # Name (Bold)
+        name_paragraph = text_cell.paragraphs[0]
+        name_run = name_paragraph.add_run(guest.full_name)
         name_run.bold = True
-        name_run.font.size = Pt(14)
+        name_run.font.size = Pt(12)
         
-        # Add nickname if available
-        if guest.nickname:
-            nickname_paragraph = bio_cell.add_paragraph()
-            nickname_run = nickname_paragraph.add_run(f'"{guest.nickname}"')
-            nickname_run.italic = True
-            nickname_run.font.size = Pt(12)
+        # Athena ID (if available)
+        if guest.athena_id:
+            athena_paragraph = text_cell.add_paragraph()
+            athena_paragraph.add_run(guest.athena_id)
         
-        # Add title and organization
-        if guest.title or guest.organization:
-            title_org = []
-            if guest.title:
-                title_org.append(guest.title)
-            if guest.organization:
-                title_org.append(guest.organization)
+        # Capacity and Prospect Manager (if available)
+        if guest.donor_capacity or guest.prospect_manager:
+            capacity_paragraph = text_cell.add_paragraph()
             
-            title_paragraph = bio_cell.add_paragraph()
-            title_run = title_paragraph.add_run(", ".join(title_org))
-            title_run.italic = True
-            title_run.font.size = Pt(12)
+            if guest.donor_capacity and guest.prospect_manager:
+                # Both exist, include the dash
+                capacity_paragraph.add_run(f"{guest.donor_capacity} - {guest.prospect_manager}")
+            elif guest.donor_capacity:
+                # Only capacity exists
+                capacity_paragraph.add_run(guest.donor_capacity)
+            elif guest.prospect_manager:
+                # Only prospect manager exists
+                capacity_paragraph.add_run(guest.prospect_manager)
         
-        # Add prospect manager if available
-        if guest.prospect_manager:
-            manager_paragraph = bio_cell.add_paragraph()
-            manager_paragraph.add_run("Prospect Manager: ").bold = True
-            manager_paragraph.add_run(guest.prospect_manager)
-        
-        # Add the bio
+        # Bio (if available)
         if guest.bio:
-            bio_paragraph = bio_cell.add_paragraph()
+            bio_paragraph = text_cell.add_paragraph()
             bio_paragraph.add_run(guest.bio)
         
-        # Add donor capacity if available
-        if guest.donor_capacity:
-            capacity_paragraph = bio_cell.add_paragraph()
-            capacity_paragraph.add_run("\nDonor Capacity: ").bold = True
-            capacity_paragraph.add_run(guest.donor_capacity.replace('_', ' ').title())
-        
-        # Add notes from the attendance if available
-        if attendance.notes:
-            notes_paragraph = bio_cell.add_paragraph()
-            notes_paragraph.add_run("\nEvent Notes: ").bold = True
-            notes_paragraph.add_run(attendance.notes)
+        # Add empty paragraph as spacer between guests
+        doc.add_paragraph()
     
     # Create a temporary file for the document
     with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as temp_file:
